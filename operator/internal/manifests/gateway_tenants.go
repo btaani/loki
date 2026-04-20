@@ -1,11 +1,13 @@
 package manifests
 
 import (
+	"context"
 	"maps"
 	"strings"
 
 	"dario.cat/mergo"
 	"github.com/ViaQ/logerr/v2/kverrors"
+	"github.com/go-logr/logr"
 	routev1 "github.com/openshift/api/route/v1"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -15,6 +17,7 @@ import (
 
 	configv1 "github.com/grafana/loki/operator/api/config/v1"
 	lokiv1 "github.com/grafana/loki/operator/api/loki/v1"
+	"github.com/grafana/loki/operator/internal/external/k8s"
 	"github.com/grafana/loki/operator/internal/manifests/internal/config"
 	"github.com/grafana/loki/operator/internal/manifests/openshift"
 )
@@ -23,7 +26,7 @@ import (
 // tenant mode. Currently nothing is applied for modes static and dynamic.
 // For modes openshift-logging and openshift-network
 // the tenant spec is filled with defaults for authentication and authorization.
-func ApplyGatewayDefaultOptions(opts *Options) error {
+func ApplyGatewayDefaultOptions(opts *Options, k k8s.Client, logger logr.Logger) error {
 	if opts.Stack.Tenants == nil {
 		return nil
 	}
@@ -54,7 +57,12 @@ func ApplyGatewayDefaultOptions(opts *Options) error {
 			}
 		}
 
-		o.WithTenantsForMode(opts.Stack.Tenants.Mode, opts.GatewayBaseDomain, tenantData)
+		isOIDC, err := openshift.IsAuthTypeOIDC(context.Background(), k, logger)
+		if err != nil {
+			return kverrors.Wrap(err, "error getting authentication type")
+		}
+
+		o.WithTenantsForMode(opts.Stack.Tenants.Mode, opts.GatewayBaseDomain, tenantData, isOIDC)
 
 		o.BuildOpts.ExternalAccessEnabled = opts.Stack.Tenants == nil || !opts.Stack.Tenants.DisableIngress
 	}

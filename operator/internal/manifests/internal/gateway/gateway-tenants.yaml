@@ -73,10 +73,12 @@ tenants:
 {{- range $spec := $l.OpenShiftOptions.Authentication }}
 - name: {{ $spec.TenantName }}
   id: {{ $spec.TenantID }}
+  {{- if not $spec.DisableOAuth }}
   openshift:
     serviceAccount: {{ $spec.ServiceAccount }}
     redirectURL: {{ $spec.RedirectURL }}
     cookieSecret: {{ $spec.CookieSecret }}
+  {{- end }}
   opa:
     url: {{ $l.OpenShiftOptions.Authorization.OPAUrl }}
     withAccessToken: true

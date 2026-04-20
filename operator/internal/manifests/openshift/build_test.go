@@ -15,7 +15,7 @@ import (
 
 func TestBuildGatewayTenantModeObjects_ClusterRoleRefMatches(t *testing.T) {
 	opts := NewOptions("abc", "ns", "abc", "abc", "abc", 1*time.Minute, map[string]string{}, "abc").
-		WithTenantsForMode(lokiv1.OpenshiftLogging, "example.com", map[string]TenantData{})
+		WithTenantsForMode(lokiv1.OpenshiftLogging, "example.com", map[string]TenantData{}, false)
 
 	objs := BuildGatewayTenantModeObjects(*opts)
 	cr := objs[0].(*rbacv1.ClusterRole)

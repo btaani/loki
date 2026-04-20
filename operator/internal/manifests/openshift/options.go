@@ -26,6 +26,7 @@ type AuthenticationSpec struct {
 	ServiceAccount string
 	RedirectURL    string
 	CookieSecret   string
+	DisableOAuth   bool
 }
 
 // AuthorizationSpec describes the authorization specification
@@ -79,7 +80,7 @@ func NewOptions(
 	}
 }
 
-func (o *Options) WithTenantsForMode(mode lokiv1.ModeType, gwBaseDomain string, tenantConfigMap map[string]TenantData) *Options {
+func (o *Options) WithTenantsForMode(mode lokiv1.ModeType, gwBaseDomain string, tenantConfigMap map[string]TenantData, disableOAuth bool) *Options {
 	var (
 		authn []AuthenticationSpec
 		authz AuthorizationSpec
@@ -99,6 +100,7 @@ func (o *Options) WithTenantsForMode(mode lokiv1.ModeType, gwBaseDomain string, 
 			ServiceAccount: o.BuildOpts.GatewayName,
 			RedirectURL:    fmt.Sprintf("https://%s/openshift/%s/callback", host, name),
 			CookieSecret:   cookieSecret,
+			DisableOAuth:   disableOAuth,
 		})
 	}
 
