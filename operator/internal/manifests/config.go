@@ -7,6 +7,7 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	lokiv1 "github.com/grafana/loki/operator/api/loki/v1"
 	"github.com/grafana/loki/operator/internal/manifests/internal/config"
@@ -52,6 +53,82 @@ func LokiConfigMap(opt Options) (*corev1.ConfigMap, string, error) {
 			config.LokiRuntimeConfigFileName: string(rc),
 		},
 	}, sha1C, nil
+}
+
+// LokiConfigMaps creates two ConfigMaps: main config and ingester-specific config
+func LokiConfigMaps(opt Options) ([]client.Object, map[string]string, error) {
+	mainCfg := ConfigOptions(opt)
+	if opt.Stack.Tenants != nil {
+		if err := ConfigureOptionsForMode(&mainCfg, opt); err != nil {
+			return nil, nil, err
+		}
+	}
+
+	mainConfig, mainRC, err := config.Build(mainCfg)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	ingesterCfg := ConfigOptions(opt)
+	ingesterCfg.FilterForIngester = true
+	if opt.Stack.Tenants != nil {
+		if cfgErr := ConfigureOptionsForMode(&ingesterCfg, opt); cfgErr != nil {
+			return nil, nil, cfgErr
+		}
+	}
+
+	ingesterConfig, ingesterRC, ingErr := config.Build(ingesterCfg)
+	if ingErr != nil {
+		return nil, nil, ingErr
+	}
+
+	mainHash := calculateConfigHash(mainConfig, mainRC)
+	ingesterHash := calculateConfigHash(ingesterConfig, ingesterRC)
+
+	return []client.Object{
+			&corev1.ConfigMap{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "ConfigMap",
+					APIVersion: corev1.SchemeGroupVersion.String(),
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:   lokiConfigMapName(opt.Name),
+					Labels: commonLabels(opt.Name),
+				},
+				Data: map[string]string{
+					config.LokiConfigFileName:        string(mainConfig),
+					config.LokiRuntimeConfigFileName: string(mainRC),
+				},
+			},
+			&corev1.ConfigMap{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "ConfigMap",
+					APIVersion: corev1.SchemeGroupVersion.String(),
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:   ingesterConfigMapName(opt.Name),
+					Labels: commonLabels(opt.Name),
+				},
+				Data: map[string]string{
+					config.LokiConfigFileName:        string(ingesterConfig),
+					config.LokiRuntimeConfigFileName: string(ingesterRC),
+				},
+			},
+		}, map[string]string{
+			"main":     mainHash,
+			"ingester": ingesterHash,
+		}, nil
+}
+
+func calculateConfigHash(config, runtimeConfig []byte) string {
+	s := sha1.New()
+	s.Write(config)
+	s.Write(runtimeConfig)
+	return fmt.Sprintf("%x", s.Sum(nil))
+}
+
+func ingesterConfigMapName(stackName string) string {
+	return fmt.Sprintf("%s-ingester-config", stackName)
 }
 
 // ConfigOptions converts Options to config.Options

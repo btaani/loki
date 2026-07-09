@@ -73,7 +73,7 @@ func BuildIngester(opts Options) ([]client.Object, error) {
 // NewIngesterStatefulSet creates a deployment object for an ingester
 func NewIngesterStatefulSet(opts Options) *appsv1.StatefulSet {
 	l := ComponentLabels(LabelIngesterComponent, opts.Name)
-	a := commonAnnotations(opts)
+	a := ingesterAnnotations(opts)
 	podSpec := corev1.PodSpec{
 		ServiceAccountName: opts.Name,
 		Affinity:           configureAffinity(LabelIngesterComponent, opts.Name, opts.Gates.DefaultNodeAffinity, opts.Stack.Template.Ingester),
@@ -84,7 +84,7 @@ func NewIngesterStatefulSet(opts Options) *appsv1.StatefulSet {
 					ConfigMap: &corev1.ConfigMapVolumeSource{
 						DefaultMode: &defaultConfigMapMode,
 						LocalObjectReference: corev1.LocalObjectReference{
-							Name: lokiConfigMapName(opts.Name),
+							Name: ingesterConfigMapName(opts.Name),
 						},
 					},
 				},

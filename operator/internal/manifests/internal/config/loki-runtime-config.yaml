@@ -39,6 +39,7 @@ overrides:
       desired_rate: {{ . }}MB
     {{- end}}
   {{- end -}}
+  {{- if not $opts.FilterForIngester }}
   {{- if $l := $spec.QueryLimits -}}
     {{- if $l.MaxEntriesLimitPerQuery }}
     max_entries_limit_per_query: {{ $spec.QueryLimits.MaxEntriesLimitPerQuery }}
@@ -74,6 +75,7 @@ overrides:
     {{- end }}
     {{- end}}
   {{- end -}}
+  {{- end }}
   {{- if $otlp := index $opts.OTLPAttributes.Tenants $tenant }}
     otlp_config:
       {{- if $otlp.ResourceAttributes  }}

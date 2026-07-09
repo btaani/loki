@@ -17,11 +17,12 @@ func BuildAll(opts Options) ([]client.Object, error) {
 
 	sa := BuildServiceAccount(opts)
 
-	cm, sha1C, mapErr := LokiConfigMap(opts)
+	configMaps, hashes, mapErr := LokiConfigMaps(opts)
 	if mapErr != nil {
 		return nil, mapErr
 	}
-	opts.ConfigSHA1 = sha1C
+	opts.ConfigSHA1 = hashes["main"]
+	opts.IngesterConfigSHA1 = hashes["ingester"]
 
 	distributorObjs, err := BuildDistributor(opts)
 	if err != nil {
@@ -53,7 +54,7 @@ func BuildAll(opts Options) ([]client.Object, error) {
 		return nil, err
 	}
 
-	res = append(res, cm)
+	res = append(res, configMaps...)
 	res = append(res, sa)
 	res = append(res, distributorObjs...)
 	res = append(res, ingesterObjs...)

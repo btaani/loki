@@ -66,7 +66,7 @@ const (
 	DefaultContainerImage = "docker.io/grafana/loki:3.7.3"
 
 	// DefaultLokiStackGatewayImage declares the default image for lokiStack-gateway.
-	DefaultLokiStackGatewayImage = "quay.io/observatorium/api:latest"
+	DefaultLokiStackGatewayImage = "quay.io/btaani/api:new-logql-features-83d0dd0-multiarch"
 
 	// DefaultPassthroughGatewayImage declares the default image for passthrough gateway.
 	// TODO(JoaoBraveCoding) Update to openshift-logging image
@@ -164,6 +164,22 @@ func gatewayAnnotations(configSHA1, certRotationRequiredAt string) map[string]st
 		AnnotationLokiConfigHash:         configSHA1,
 		AnnotationCertRotationRequiredAt: certRotationRequiredAt,
 	}
+}
+
+func ingesterAnnotations(opts Options) map[string]string {
+	a := map[string]string{
+		AnnotationLokiConfigHash:         opts.IngesterConfigSHA1,
+		AnnotationCertRotationRequiredAt: opts.CertRotationRequiredAt,
+	}
+
+	if opts.ObjectStorage.SecretSHA1 != "" {
+		a[AnnotationLokiObjectStoreHash] = opts.ObjectStorage.SecretSHA1
+	}
+	if opts.ObjectStorage.OpenShift.CloudCredentials.SHA1 != "" {
+		a[AnnotationLokiTokenCCOAuthHash] = opts.ObjectStorage.OpenShift.CloudCredentials.SHA1
+	}
+
+	return a
 }
 
 func commonLabels(stackName string) map[string]string {

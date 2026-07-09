@@ -16,9 +16,9 @@ import (
 
 func TestNewIngesterStatefulSet_HasTemplateConfigHashAnnotation(t *testing.T) {
 	ss := NewIngesterStatefulSet(Options{
-		Name:       "abcd",
-		Namespace:  "efgh",
-		ConfigSHA1: "deadbeef",
+		Name:               "abcd",
+		Namespace:          "efgh",
+		IngesterConfigSHA1: "deadbeef",
 		Stack: lokiv1.LokiStackSpec{
 			StorageClassName: "standard",
 			Template: &lokiv1.LokiTemplateSpec{

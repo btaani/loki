@@ -31,6 +31,7 @@ type Options struct {
 	EnableRemoteReporting bool
 	DiscoverLogLevels     bool
 	Shippers              []string
+	FilterForIngester     bool
 
 	ObjectStorage storage.Options
 

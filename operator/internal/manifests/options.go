@@ -21,6 +21,7 @@ type Options struct {
 	GatewayImage           string
 	GatewayBaseDomain      string
 	ConfigSHA1             string
+	IngesterConfigSHA1     string
 	CertRotationRequiredAt string
 
 	Gates                configv1.FeatureGates
