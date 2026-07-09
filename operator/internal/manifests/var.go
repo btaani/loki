@@ -66,7 +66,7 @@ const (
 	DefaultContainerImage = "docker.io/grafana/loki:3.7.3"
 
 	// DefaultLokiStackGatewayImage declares the default image for lokiStack-gateway.
-	DefaultLokiStackGatewayImage = "quay.io/btaani/api:new-logql-features-83d0dd0-multiarch"
+	DefaultLokiStackGatewayImage = "quay.io/observatorium/api"
 
 	// DefaultPassthroughGatewayImage declares the default image for passthrough gateway.
 	// TODO(JoaoBraveCoding) Update to openshift-logging image
