@@ -1,0 +1,15 @@
+apiVersion: loki.grafana.com/v1
+kind: RecordingRule
+metadata:
+  name: test-recording-rule
+  namespace: openshift-logging
+  labels:
+    openshift.io/cluster-monitoring: "true"
+spec:
+  tenantID: infrastructure
+  groups:
+  - name: test-rules
+    interval: 1m
+    rules:
+    - record: loki:test:log_count_total
+      expr: 'sum(count_over_time({log_type="infrastructure"}[5m]))'

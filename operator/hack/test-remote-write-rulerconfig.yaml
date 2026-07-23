@@ -1,0 +1,17 @@
+apiVersion: loki.grafana.com/v1
+kind: RulerConfig
+metadata:
+  name: lokistack-dev
+  namespace: openshift-logging
+spec:
+  evaluationInterval: 1m
+  pollInterval: 1m
+  remoteWrite:
+    enabled: true
+    refreshPeriod: 10s
+    client:
+      name: prometheus-test
+      url: http://prometheus-test.openshift-logging.svc.cluster.local:9090/api/v1/write
+      timeout: 30s
+      authorization: basic
+      authorizationSecretName: remote-write-secret
