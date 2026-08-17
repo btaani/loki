@@ -69,6 +69,9 @@ tests:
       - series: 'lokistack_status_condition{stack_name="mystack", stack_namespace="my-ns", condition="Ready", status="false"}'
         values: '1+0x25'
 
+      - series: 'lokistack_status_condition{stack_name="mystack", stack_namespace="my-ns", reason="BoltDBSchemaUsed", status="true"}'
+        values: '1+0x25'
+
       - series: 'loki_ingester_chunks_flush_failures_total{namespace="my-ns", pod="ingester-0"}'
         values: '0+25x20'
       - series: 'loki_ingester_chunks_flush_requests_total{namespace="my-ns", pod="ingester-0"}'
@@ -213,6 +216,20 @@ tests:
               description: 'The LokiStack "mystack" in namespace "my-ns" has components that are not ready.'
               summary: "One or more LokiStack components are not ready."
               runbook_url: "[[ .RunbookURL ]]#Lokistack-Components-Not-Ready-Warning"
+      - eval_time: 1m
+        alertname: LokistackBoltDBSchemaUsed
+        exp_alerts:
+          - exp_labels:
+              stack_namespace: my-ns
+              stack_name: mystack
+              severity: critical
+            exp_annotations:
+              description: |-
+                The LokiStack "mystack" in namespace "my-ns" uses a deprecated
+                BoltDB-backed storage schema (v11 or v12). BoltDB is deprecated and will be unsupported in future versions.
+                Migrate to the TSDB schema (v13) before upgrading to avoid service disruption.
+              summary: "One or more of the deployed LokiStacks uses a deprecated BoltDB storage schema that will be unsupported in future versions."
+              runbook_url: "[[ .RunbookURL ]]#Lokistack-BoltDB-Schema-Used"
       - eval_time: 16m
         alertname: LokiIngesterFlushFailureRateCritical
         exp_alerts:

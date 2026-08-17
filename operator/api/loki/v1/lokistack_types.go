@@ -1425,6 +1425,8 @@ const (
 	ReasonZoneAwareEmptyLabel LokiStackConditionReason = "ReasonZoneAwareEmptyLabel"
 	// ReasonStorageNeedsSchemaUpdate when the object storage schema version is older than V13
 	ReasonStorageNeedsSchemaUpdate LokiStackConditionReason = "StorageNeedsSchemaUpdate"
+	// ReasonBoltDBSchemaUsed when the LokiStack uses a deprecated BoltDB-backed storage schema (v11 or v12) that will be unsupported in future versions.
+	ReasonBoltDBSchemaUsed LokiStackConditionReason = "BoltDBSchemaUsed"
 	// ReasonInsufficientIngesterReplicas when the ingester replicas are less than or equal to the replication factor. Which causes log ingestion to stop when ingester pods get restarted.
 	ReasonInsufficientIngesterReplicas LokiStackConditionReason = "InsufficientIngesterReplicas"
 )

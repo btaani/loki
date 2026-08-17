@@ -226,6 +226,22 @@ groups:
       > 0
     for: 1m
     labels:
+      severity: critical
+  - alert: LokistackBoltDBSchemaUsed
+    annotations:
+      description: |-
+        The LokiStack "{{ $labels.stack_name }}" in namespace "{{ $labels.stack_namespace }}" uses a deprecated
+        BoltDB-backed storage schema (v11 or v12). BoltDB is deprecated and will be unsupported in future versions.
+        Migrate to the TSDB schema (v13) before upgrading to avoid service disruption.
+      summary: "One or more of the deployed LokiStacks uses a deprecated BoltDB storage schema that will be unsupported in future versions."
+      runbook_url: "[[ .RunbookURL ]]#Lokistack-BoltDB-Schema-Used"
+    expr: |
+      sum (
+        lokistack_status_condition{reason="BoltDBSchemaUsed",status="true"}
+      ) by (stack_namespace, stack_name)
+      > 0
+    for: 1m
+    labels:
       severity: warning
   - alert: LokistackComponentsNotReadyWarning
     annotations:

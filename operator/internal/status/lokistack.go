@@ -33,6 +33,7 @@ const (
 	messageDegradedMissingNodes            = "Cluster contains no nodes matching the labels used for zone-awareness"
 	messageDegradedEmptyNodeLabel          = "No value for the labels used for zone-awareness"
 	messageWarningNeedsSchemaVersionUpdate = "The schema configuration does not contain the most recent schema version and needs an update"
+	messageWarningBoltDBSchemaUsed         = "The LokiStack uses a deprecated BoltDB-backed storage schema (v11 or v12). BoltDB is deprecated and will be unsupported in future versions. Migrate to the TSDB schema (v13) before upgrading."
 )
 
 var (
@@ -198,6 +199,17 @@ func generateWarnings(stack *lokiv1.LokiStack) []metav1.Condition {
 			Reason:  string(lokiv1.ReasonStorageNeedsSchemaUpdate),
 			Message: messageWarningNeedsSchemaVersionUpdate,
 		})
+	}
+
+	for _, s := range schemas {
+		if s.Version == lokiv1.ObjectStorageSchemaV11 || s.Version == lokiv1.ObjectStorageSchemaV12 {
+			warnings = append(warnings, metav1.Condition{
+				Type:    string(lokiv1.ConditionWarning),
+				Reason:  string(lokiv1.ReasonBoltDBSchemaUsed),
+				Message: messageWarningBoltDBSchemaUsed,
+			})
+			break
+		}
 	}
 
 	// Check if the ingester's replicas are less than or equal to the replication factor

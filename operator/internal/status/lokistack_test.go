@@ -224,11 +224,18 @@ func TestGenerateWarningCondition_WhenStorageSchemaIsOld(t *testing.T) {
 					EffectiveDate: "2023-10-11",
 				},
 			},
-			wantCondition: []metav1.Condition{{
-				Type:    string(lokiv1.ConditionWarning),
-				Reason:  string(lokiv1.ReasonStorageNeedsSchemaUpdate),
-				Message: messageWarningNeedsSchemaVersionUpdate,
-			}},
+			wantCondition: []metav1.Condition{
+				{
+					Type:    string(lokiv1.ConditionWarning),
+					Reason:  string(lokiv1.ReasonStorageNeedsSchemaUpdate),
+					Message: messageWarningNeedsSchemaVersionUpdate,
+				},
+				{
+					Type:    string(lokiv1.ConditionWarning),
+					Reason:  string(lokiv1.ReasonBoltDBSchemaUsed),
+					Message: messageWarningBoltDBSchemaUsed,
+				},
+			},
 		},
 		{
 			desc: "with V13 not as the last element in schema config",
@@ -246,11 +253,18 @@ func TestGenerateWarningCondition_WhenStorageSchemaIsOld(t *testing.T) {
 					EffectiveDate: "2024-10-11",
 				},
 			},
-			wantCondition: []metav1.Condition{{
-				Type:    string(lokiv1.ConditionWarning),
-				Reason:  string(lokiv1.ReasonStorageNeedsSchemaUpdate),
-				Message: messageWarningNeedsSchemaVersionUpdate,
-			}},
+			wantCondition: []metav1.Condition{
+				{
+					Type:    string(lokiv1.ConditionWarning),
+					Reason:  string(lokiv1.ReasonStorageNeedsSchemaUpdate),
+					Message: messageWarningNeedsSchemaVersionUpdate,
+				},
+				{
+					Type:    string(lokiv1.ConditionWarning),
+					Reason:  string(lokiv1.ReasonBoltDBSchemaUsed),
+					Message: messageWarningBoltDBSchemaUsed,
+				},
+			},
 		},
 		{
 			desc: "with V13 as the last element in schema config",
@@ -263,6 +277,22 @@ func TestGenerateWarningCondition_WhenStorageSchemaIsOld(t *testing.T) {
 					Version:       lokiv1.ObjectStorageSchemaV12,
 					EffectiveDate: "2023-10-11",
 				},
+				{
+					Version:       lokiv1.ObjectStorageSchemaV13,
+					EffectiveDate: "2024-10-11",
+				},
+			},
+			wantCondition: []metav1.Condition{
+				{
+					Type:    string(lokiv1.ConditionWarning),
+					Reason:  string(lokiv1.ReasonBoltDBSchemaUsed),
+					Message: messageWarningBoltDBSchemaUsed,
+				},
+			},
+		},
+		{
+			desc: "with only V13 in schema config",
+			schemas: []lokiv1.ObjectStorageSchema{
 				{
 					Version:       lokiv1.ObjectStorageSchemaV13,
 					EffectiveDate: "2024-10-11",

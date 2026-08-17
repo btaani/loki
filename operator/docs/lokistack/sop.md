@@ -412,6 +412,32 @@ The schema configuration does not contain the most recent schema version and nee
 
 - Add a new object storage schema V13 with a future EffectiveDate
 
+## Lokistack BoltDB Schema Used
+
+### Impact
+
+The LokiStack uses a deprecated BoltDB-backed storage schema (v11 or v12).
+BoltDB is deprecated and will be unsupported in future versions. If not migrated before upgrading, Loki will fail to start.
+
+### Summary
+
+BoltDB is deprecated and will be unsupported in future versions. LokiStacks that still use a v11 or v12 storage schema must migrate to the TSDB schema (v13) before upgrading.
+
+### Severity
+
+`Critical`
+
+### Access Required
+
+- Console access to the cluster
+- Edit access to the namespace where the LokiStack is deployed:
+  - OpenShift
+    - `openshift-logging` (LokiStack)
+
+### Steps
+
+- Follow the migration guide: Migrating from BoltDB to TSDB Schema // TODO: add Red Hat Docs link
+
 ## Lokistack Components Not Ready Warning
 
 ### Impact

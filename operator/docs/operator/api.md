@@ -1808,7 +1808,10 @@ PodStatusMap
 <th>Description</th>
 </tr>
 </thead>
-<tbody><tr><td><p>&#34;FailedCertificateRotation&#34;</p></td>
+<tbody><tr><td><p>&#34;BoltDBSchemaUsed&#34;</p></td>
+<td><p>ReasonBoltDBSchemaUsed when the LokiStack uses a deprecated BoltDB-backed storage schema (v11 or v12) that will be unsupported in future versions.</p>
+</td>
+</tr><tr><td><p>&#34;FailedCertificateRotation&#34;</p></td>
 <td><p>ReasonFailedCertificateRotation when the reconciler cannot rotate any of the required TLS certificates.</p>
 </td>
 </tr><tr><td><p>&#34;FailedComponents&#34;</p></td>
