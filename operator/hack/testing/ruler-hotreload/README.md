@@ -11,8 +11,8 @@
 ### 1. Deploy the RulerConfig and AlertingRule
 
 ```bash
-kubectl apply -f hack/testing/ruler-hotreload/rulerconfig.yaml
-kubectl apply -f hack/testing/ruler-hotreload/alertingrule.yaml
+kubectl apply -f ruler-hotreload/rulerconfig.yaml
+kubectl apply -f ruler-hotreload/alertingrule.yaml
 ```
 
 ### 2. Wait for the ruler to start firing
