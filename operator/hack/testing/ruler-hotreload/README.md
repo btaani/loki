@@ -2,7 +2,7 @@
 
 ## Prerequisites
 - Kubernetes/OpenShift cluster
-- Loki Operator that uses the custom Loki image built from this PR for its Loki components
+- Loki Operator that uses the custom Loki image built from this PR for its Loki components: `quay.io/btaani/loki-operator:0.0.1-20260916144555-e8bd52eb47`
 - LokiStack `lokistack-dev` deployed in namespace `openshift-logging`
 - Log collectors shipping logs to Loki
 
