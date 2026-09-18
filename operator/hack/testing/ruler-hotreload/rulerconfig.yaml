@@ -1,0 +1,18 @@
+apiVersion: loki.grafana.com/v1
+kind: RulerConfig
+metadata:
+  name: lokistack-dev
+  namespace: openshift-logging
+spec:
+  evaluationInterval: 1m
+  pollInterval: 1m
+  alertmanager:
+    endpoints:
+      - https://alertmanager.example.com
+    enableV2: true
+  overrides:
+    infrastructure:
+      alertmanager:
+        endpoints:
+          - https://alertmanager-initial.example.com
+        enableV2: true

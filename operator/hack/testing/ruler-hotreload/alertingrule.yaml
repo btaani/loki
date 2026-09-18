@@ -1,0 +1,22 @@
+apiVersion: loki.grafana.com/v1
+kind: AlertingRule
+metadata:
+  name: test-alert
+  namespace: openshift-logging
+  labels:
+    openshift.io/cluster-monitoring: "true"
+spec:
+  tenantID: infrastructure
+  groups:
+    - name: test-group
+      interval: 1m
+      rules:
+        - alert: TestAlwaysFiring
+          expr: |
+            sum(count_over_time({log_type="infrastructure"}[5m])) > 0
+          for: 0m
+          labels:
+            severity: info
+          annotations:
+            summary: "Test alert"
+            description: "Test alert for hot-reload verification"
