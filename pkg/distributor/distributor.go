@@ -1158,6 +1158,9 @@ func (d *Distributor) enforceIngestionRateLimits(
 		bucket      *rateLimitBucket
 		reservation *rate.Reservation
 	}
+	// Record the current ingestion rate limit for this tenant.
+	d.m.tenantIngestionRateLimit.WithLabelValues(tenantID).Set(d.validator.IngestionRateBytes(tenantID))
+
 	reservations := make([]bucketReservation, 0, len(rlBuckets))
 	var exceeded []*rateLimitBucket
 	for _, b := range rlBuckets {

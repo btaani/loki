@@ -40,6 +40,9 @@ type metrics struct {
 	// Track the max inflight bytes in the last 1 minute.
 	maxInflightBytes           prometheus.Gauge
 	inflightBytesHighWatermark prometheus.Summary
+
+	// Temporary: per-tenant ingestion rate limit for observability during defaults: rollout.
+	tenantIngestionRateLimit *prometheus.GaugeVec
 }
 
 func newMetrics(reg prometheus.Registerer) *metrics {
@@ -188,5 +191,10 @@ func newMetrics(reg prometheus.Registerer) *metrics {
 			Objectives: map[float64]float64{1.0: 0.1},
 			MaxAge:     time.Minute,
 		}),
+		tenantIngestionRateLimit: promauto.With(reg).NewGaugeVec(prometheus.GaugeOpts{
+			Namespace: constants.Loki,
+			Name:      "distributor_tenant_ingestion_rate_limit_bytes_per_second",
+			Help:      "The configured ingestion rate limit in bytes per second for each tenant.",
+		}, []string{"tenant"}),
 	}
 }
