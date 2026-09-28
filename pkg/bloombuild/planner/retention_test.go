@@ -755,6 +755,8 @@ func (m mockRetentionLimits) AllByUserID() map[string]*validation.Limits {
 	return tenants
 }
 
+func (m mockRetentionLimits) Defaults() *validation.Limits { return nil }
+
 func (m mockRetentionLimits) DefaultLimits() *validation.Limits {
 	return &validation.Limits{
 		RetentionPeriod: model.Duration(m.defaultRetention),

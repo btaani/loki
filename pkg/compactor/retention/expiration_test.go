@@ -56,6 +56,8 @@ func (f fakeLimits) AllByUserID() map[string]*validation.Limits {
 	return res
 }
 
+func (f fakeLimits) Defaults() *validation.Limits { return nil }
+
 func defaultLimitsTestConfig() validation.Limits {
 	limits := validation.Limits{}
 	flagext.DefaultValues(&limits)
@@ -78,6 +80,8 @@ func (f fakeOverrides) AllByUserID() map[string]*validation.Limits {
 	//TODO implement me
 	panic("implement me")
 }
+
+func (f fakeOverrides) Defaults() *validation.Limits { return nil }
 
 func Test_expirationChecker_Expired(t *testing.T) {
 	// Set a default retention of 0 which should disable it

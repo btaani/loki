@@ -570,6 +570,7 @@ type limitsByTenant map[string]*validation.Limits
 
 func (m limitsByTenant) TenantLimits(userID string) *validation.Limits { return m[userID] }
 func (m limitsByTenant) AllByUserID() map[string]*validation.Limits    { return m }
+func (m limitsByTenant) Defaults() *validation.Limits                  { return nil }
 
 func TestBuilder_CopyAndSort_SortSchema(t *testing.T) {
 	now := time.Date(2025, time.September, 17, 0, 0, 0, 0, time.UTC)

@@ -295,11 +295,13 @@ func (t *Loki) initRuntimeConfig() (services.Service, error) {
 		return nil, nil
 	}
 
-	t.Cfg.RuntimeConfig.Loader = loadRuntimeConfig
-
 	// make sure to set default limits before we start loading configuration into memory
 	validation.SetDefaultLimitsForYAMLUnmarshalling(t.Cfg.LimitsConfig)
 	runtime.SetDefaultLimitsForYAMLUnmarshalling(t.Cfg.OperationalConfig)
+
+	// Capture startup limits so the loader can restore them between reloads and
+	// use them as the base when merging with the runtime defaults: block.
+	t.Cfg.RuntimeConfig.Loader = newRuntimeConfigLoader(t.Cfg.LimitsConfig)
 
 	var err error
 	t.runtimeConfig, err = runtimeconfig.New(t.Cfg.RuntimeConfig, "loki", prometheus.WrapRegistererWithPrefix("loki_", prometheus.DefaultRegisterer), util_log.Logger)

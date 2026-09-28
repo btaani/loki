@@ -58,6 +58,10 @@ func (t *tenantLimitsFromRuntimeConfig) AllByUserID() map[string]*validation.Lim
 	return nil
 }
 
+func (t *tenantLimitsFromRuntimeConfig) Defaults() *validation.Limits {
+	return nil
+}
+
 // maxLimits precomputes the maximum of each limit across all tenants.
 // Values are recomputed on every runtime config reload via a listener
 // goroutine and served from atomics, so callers pay no iteration cost.

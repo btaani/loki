@@ -72,6 +72,7 @@ func removeFastRegexMatcher(configs []validation.StreamRetention) []validation.S
 }
 
 func Test_ValidateRules(t *testing.T) {
+	var startupLimits validation.Limits
 	_, err := loadRuntimeConfig(strings.NewReader(
 		`
 overrides:
@@ -83,7 +84,7 @@ overrides:
             - selector: '{namespace="bar", cluster=~"fo.*|b.+|[1-2]"}'
               period: 24h
               priority: 10
-`))
+`), startupLimits)
 	require.Equal(t, "invalid override for tenant 29: invalid labels matchers: parse error at line 1, col 6: syntax error: unexpected IDENTIFIER, expecting STRING", err.Error())
 	_, err = loadRuntimeConfig(strings.NewReader(
 		`
@@ -93,7 +94,7 @@ overrides:
             - selector: '{app="foo"}'
               period: 5h
               priority: 10
-`))
+`), startupLimits)
 	require.Equal(t, "invalid override for tenant 29: retention period must be >= 24h was 5h", err.Error())
 }
 
@@ -135,14 +136,6 @@ func newTestRuntimeconfig(t *testing.T, yaml string) runtime.TenantConfigProvide
 	require.NoError(t, err)
 	path := f.Name()
 	// fake loader to load from string instead of file.
-	loader := func(_ io.Reader) (interface{}, error) {
-		return loadRuntimeConfig(strings.NewReader(yaml))
-	}
-	cfg := runtimeconfig.Config{
-		ReloadPeriod: 1 * time.Second,
-		Loader:       loader,
-		LoadPath:     []string{path},
-	}
 	flagset := flag.NewFlagSet("", flag.PanicOnError)
 	var defaults validation.Limits
 	var operations runtime.Config
@@ -150,6 +143,14 @@ func newTestRuntimeconfig(t *testing.T, yaml string) runtime.TenantConfigProvide
 	operations.RegisterFlags(flagset)
 	runtime.SetDefaultLimitsForYAMLUnmarshalling(operations)
 	require.NoError(t, flagset.Parse(nil))
+	loader := func(_ io.Reader) (interface{}, error) {
+		return loadRuntimeConfig(strings.NewReader(yaml), defaults)
+	}
+	cfg := runtimeconfig.Config{
+		ReloadPeriod: 1 * time.Second,
+		Loader:       loader,
+		LoadPath:     []string{path},
+	}
 
 	reg := prometheus.NewPedanticRegistry()
 	runtimeConfig, err := runtimeconfig.New(cfg, "test", prometheus.WrapRegistererWithPrefix("loki_", reg), log.NewNopLogger())
@@ -170,20 +171,20 @@ func newTestOverrides(t *testing.T, yaml string) *validation.Overrides {
 	f, err := os.CreateTemp(t.TempDir(), "bar")
 	require.NoError(t, err)
 	path := f.Name()
+	flagset := flag.NewFlagSet("", flag.PanicOnError)
+	var defaults validation.Limits
+	defaults.RegisterFlags(flagset)
+	require.NoError(t, flagset.Parse(nil))
+	validation.SetDefaultLimitsForYAMLUnmarshalling(defaults)
 	// fake loader to load from string instead of file.
 	loader := func(_ io.Reader) (interface{}, error) {
-		return loadRuntimeConfig(strings.NewReader(yaml))
+		return loadRuntimeConfig(strings.NewReader(yaml), defaults)
 	}
 	cfg := runtimeconfig.Config{
 		ReloadPeriod: 1 * time.Second,
 		Loader:       loader,
 		LoadPath:     []string{path},
 	}
-	flagset := flag.NewFlagSet("", flag.PanicOnError)
-	var defaults validation.Limits
-	defaults.RegisterFlags(flagset)
-	require.NoError(t, flagset.Parse(nil))
-	validation.SetDefaultLimitsForYAMLUnmarshalling(defaults)
 
 	reg := prometheus.NewPedanticRegistry()
 	runtimeConfig, err := runtimeconfig.New(cfg, "test", prometheus.WrapRegistererWithPrefix("loki_", reg), log.NewNopLogger())
@@ -211,4 +212,65 @@ func Test_NoOverrides(t *testing.T) {
 	overrides, err := validation.NewOverrides(defaults, newtenantLimitsFromRuntimeConfig(nil))
 	require.NoError(t, err)
 	require.Equal(t, time.Duration(defaults.QuerySplitDuration), overrides.QuerySplitDuration("foo"))
+}
+
+func Test_DefaultsBlock(t *testing.T) {
+	flagset := flag.NewFlagSet("", flag.PanicOnError)
+	var startupLimits validation.Limits
+	startupLimits.RegisterFlags(flagset)
+	require.NoError(t, flagset.Parse(nil))
+	validation.SetDefaultLimitsForYAMLUnmarshalling(startupLimits)
+
+	result, err := loadRuntimeConfig(strings.NewReader(`
+defaults:
+  ingestion_rate_mb: 8
+overrides:
+  tenant-a:
+    query_timeout: 10m
+`), startupLimits)
+	require.NoError(t, err)
+
+	cfg := result.(*runtimeConfigValues)
+	require.NotNil(t, cfg.DefaultLimits)
+	require.Equal(t, float64(8), cfg.DefaultLimits.IngestionRateMB)
+
+	tenantA := cfg.TenantLimits["tenant-a"]
+	require.NotNil(t, tenantA)
+	require.Equal(t, float64(8), tenantA.IngestionRateMB, "tenant-a should inherit ingestion_rate_mb from defaults:")
+}
+
+func Test_DefaultsBlockAbsent(t *testing.T) {
+	flagset := flag.NewFlagSet("", flag.PanicOnError)
+	var startupLimits validation.Limits
+	startupLimits.RegisterFlags(flagset)
+	require.NoError(t, flagset.Parse(nil))
+
+	result, err := loadRuntimeConfig(strings.NewReader(`
+overrides:
+  tenant-a:
+    ingestion_rate_mb: 16
+`), startupLimits)
+	require.NoError(t, err)
+	require.Nil(t, result.(*runtimeConfigValues).DefaultLimits)
+}
+
+func Test_DefaultsBlockValidation(t *testing.T) {
+	var startupLimits validation.Limits
+	_, err := loadRuntimeConfig(strings.NewReader(`
+defaults:
+  retention_stream:
+    - selector: 'invalid{{'
+      period: 24h
+      priority: 1
+`), startupLimits)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "invalid defaults")
+}
+
+func Test_DefaultsBlockUnknownField(t *testing.T) {
+	var startupLimits validation.Limits
+	_, err := loadRuntimeConfig(strings.NewReader(`
+unknown_top_level_field: 123
+`), startupLimits)
+	require.Error(t, err)
 }

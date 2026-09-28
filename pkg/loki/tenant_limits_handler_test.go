@@ -28,6 +28,8 @@ func (m *mockTenantLimits) AllByUserID() map[string]*validation.Limits {
 	return map[string]*validation.Limits{"test-tenant": m.limits}
 }
 
+func (m *mockTenantLimits) Defaults() *validation.Limits { return nil }
+
 func TestTenantLimitsHandlerWithAllowlist(t *testing.T) {
 	limits := &validation.Limits{
 		IngestionRateMB:        10.0,

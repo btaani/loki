@@ -23,6 +23,7 @@ func (l *mockTenantLimits) TenantLimits(userID string) *Limits {
 }
 
 func (l *mockTenantLimits) AllByUserID() map[string]*Limits { return l.limits }
+func (l *mockTenantLimits) Defaults() *Limits                { return nil }
 
 func TestOverridesExporter_noConfig(t *testing.T) {
 	overrides, _ := NewOverrides(Limits{}, newMockTenantLimits(nil))

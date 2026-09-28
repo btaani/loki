@@ -746,6 +746,9 @@ type TenantLimits interface {
 	TenantLimits(userID string) *Limits
 	// AllByUserID gets a mapping of all tenant IDs and limits for that user
 	AllByUserID() map[string]*Limits
+	// Defaults returns the hot-reloadable global default limits, or nil if not set.
+	// These apply to any tenant not listed in per-tenant overrides.
+	Defaults() *Limits
 }
 
 // Overrides periodically fetch a set of per-user overrides, and provides convenience
@@ -1360,9 +1363,11 @@ func (o *Overrides) DebugEngineStreams(userID string) bool {
 
 func (o *Overrides) getOverridesForUser(userID string) *Limits {
 	if o.tenantLimits != nil {
-		l := o.tenantLimits.TenantLimits(userID)
-		if l != nil {
+		if l := o.tenantLimits.TenantLimits(userID); l != nil {
 			return l
+		}
+		if d := o.tenantLimits.Defaults(); d != nil {
+			return d
 		}
 	}
 	return o.defaultLimits
