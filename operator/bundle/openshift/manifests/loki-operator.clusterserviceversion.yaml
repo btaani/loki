@@ -152,7 +152,7 @@ metadata:
     categories: OpenShift Optional, Logging & Tracing, Observability
     certified: "false"
     containerImage: quay.io/openshift-logging/loki-operator:0.1.0
-    createdAt: "2026-09-08T17:29:28Z"
+    createdAt: "2026-09-28T11:02:03Z"
     description: |
       The Loki Operator for OCP provides a means for configuring and managing a Loki stack for cluster logging.
       ## Prerequisites and Requirements
@@ -182,7 +182,7 @@ metadata:
     operatorframework.io/arch.arm64: supported
     operatorframework.io/arch.ppc64le: supported
     operatorframework.io/arch.s390x: supported
-  name: loki-operator.v0.1.0
+  name: loki-operator.v0.0.1-20260928130201-b931ef4954
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -1981,14 +1981,14 @@ spec:
                 - /manager
                 env:
                 - name: RELATED_IMAGE_LOKI
-                  value: quay.io/openshift-logging/loki:v3.7.7
+                  value: quay.io/btaani/loki:defaults-hotreload-loki-poc
                 - name: RELATED_IMAGE_GATEWAY
                   value: quay.io/observatorium/api:latest
                 - name: RELATED_IMAGE_OPA
                   value: quay.io/observatorium/opa-openshift:latest
                 - name: RELATED_IMAGE_PASSTHROUGH_GATEWAY
                   value: quay.io/openshift-logging/passthrough-gateway:latest
-                image: quay.io/openshift-logging/loki-operator:0.1.0
+                image: quay.io/btaani/loki-operator:0.0.1-20260928130201-b931ef4954
                 imagePullPolicy: IfNotPresent
                 livenessProbe:
                   httpGet:
@@ -2087,7 +2087,7 @@ spec:
   provider:
     name: Red Hat
   relatedImages:
-  - image: quay.io/openshift-logging/loki:v3.7.7
+  - image: quay.io/btaani/loki:defaults-hotreload-loki-poc
     name: loki
   - image: quay.io/observatorium/api:latest
     name: gateway
@@ -2095,7 +2095,7 @@ spec:
     name: opa
   - image: quay.io/openshift-logging/passthrough-gateway:latest
     name: passthrough-gateway
-  version: 0.1.0
+  version: 0.0.1-20260928130201-b931ef4954
   webhookdefinitions:
   - admissionReviewVersions:
     - v1

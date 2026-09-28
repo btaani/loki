@@ -40,7 +40,8 @@ type Options struct {
 
 	OTLPAttributes OTLPAttributeConfig
 
-	Overrides map[string]LokiOverrides
+	Overrides     map[string]LokiOverrides
+	DefaultLimits *lokiv1.LimitsTemplateSpec
 }
 
 type LokiOverrides struct {

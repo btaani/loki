@@ -1,5 +1,57 @@
 {{- /*gotype: github.com/grafana/loki/operator/internal/manifests/internal/config.Options*/ -}}
 ---
+{{- with .DefaultLimits }}
+defaults:
+  {{- if $l := .IngestionLimits }}
+  {{- if $l.IngestionRate }}
+  ingestion_rate_mb: {{ $l.IngestionRate }}
+  {{- end }}
+  {{- if $l.IngestionBurstSize }}
+  ingestion_burst_size_mb: {{ $l.IngestionBurstSize }}
+  {{- end }}
+  {{- if $l.MaxLabelNameLength }}
+  max_label_name_length: {{ $l.MaxLabelNameLength }}
+  {{- end }}
+  {{- if $l.MaxLabelValueLength }}
+  max_label_value_length: {{ $l.MaxLabelValueLength }}
+  {{- end }}
+  {{- if $l.MaxLabelNamesPerSeries }}
+  max_label_names_per_series: {{ $l.MaxLabelNamesPerSeries }}
+  {{- end }}
+  {{- if $l.MaxLineSize }}
+  max_line_size: {{ $l.MaxLineSize }}
+  {{- end }}
+  {{- if $l.MaxGlobalStreamsPerTenant }}
+  max_global_streams_per_user: {{ $l.MaxGlobalStreamsPerTenant }}
+  {{- end }}
+  {{- if $l.PerStreamRateLimit }}
+  per_stream_rate_limit: {{ $l.PerStreamRateLimit }}MB
+  {{- end }}
+  {{- if $l.PerStreamRateLimitBurst }}
+  per_stream_rate_limit_burst: {{ $l.PerStreamRateLimitBurst }}MB
+  {{- end }}
+  {{- end }}
+  {{- if $l := .QueryLimits }}
+  {{- if $l.MaxEntriesLimitPerQuery }}
+  max_entries_limit_per_query: {{ $l.MaxEntriesLimitPerQuery }}
+  {{- end }}
+  {{- if $l.MaxChunksPerQuery }}
+  max_chunks_per_query: {{ $l.MaxChunksPerQuery }}
+  {{- end }}
+  {{- if $l.MaxQuerySeries }}
+  max_query_series: {{ $l.MaxQuerySeries }}
+  {{- end }}
+  {{- if $l.QueryTimeout }}
+  query_timeout: {{ $l.QueryTimeout }}
+  {{- end }}
+  {{- if $l.CardinalityLimit }}
+  cardinality_limit: {{ $l.CardinalityLimit }}
+  {{- end }}
+  {{- if $l.MaxVolumeSeries }}
+  max_volume_series: {{ $l.MaxVolumeSeries }}
+  {{- end }}
+  {{- end }}
+{{- end }}
 overrides:
 {{- $opts := . }}
   {{- range $tenant, $overrides := .Overrides }}

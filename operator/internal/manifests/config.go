@@ -32,10 +32,6 @@ func LokiConfigMap(opt Options) (*corev1.ConfigMap, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	_, err = s.Write(rc)
-	if err != nil {
-		return nil, "", err
-	}
 	sha1C := fmt.Sprintf("%x", s.Sum(nil))
 
 	return &corev1.ConfigMap{
@@ -195,8 +191,16 @@ func ConfigOptions(opt Options) config.Options {
 		},
 		Retention:      retentionConfig(&opt.Stack),
 		OTLPAttributes: otlpAttributeConfig(&opt.Stack),
-		Overrides:      overrides,
+		Overrides:     overrides,
+		DefaultLimits: defaultLimitsConfig(&opt.Stack),
 	}
+}
+
+func defaultLimitsConfig(ls *lokiv1.LokiStackSpec) *lokiv1.LimitsTemplateSpec {
+	if ls.Limits == nil {
+		return nil
+	}
+	return ls.Limits.Global
 }
 
 func alertManagerConfig(spec *lokiv1.AlertManagerSpec) *config.AlertManagerConfig {
