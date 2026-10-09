@@ -14,24 +14,26 @@ type ComponentResources struct {
 	Compactor    ResourceRequirements
 	Ruler        ResourceRequirements
 	WALStorage   ResourceRequirements
-	// these two don't need a PVCSize
-	Querier       corev1.ResourceRequirements
-	Distributor   corev1.ResourceRequirements
-	QueryFrontend corev1.ResourceRequirements
-	Gateway       corev1.ResourceRequirements
+	// these don't need a PVCSize
+	Querier        corev1.ResourceRequirements
+	Distributor    corev1.ResourceRequirements
+	QueryFrontend  corev1.ResourceRequirements
+	QueryScheduler corev1.ResourceRequirements
+	Gateway        corev1.ResourceRequirements
 }
 
 func (c ComponentResources) DeepCopy() ComponentResources {
 	return ComponentResources{
-		IndexGateway:  *c.IndexGateway.DeepCopy(),
-		Ingester:      *c.Ingester.DeepCopy(),
-		Compactor:     *c.Compactor.DeepCopy(),
-		Ruler:         *c.Ruler.DeepCopy(),
-		WALStorage:    *c.WALStorage.DeepCopy(),
-		Querier:       *c.Querier.DeepCopy(),
-		Distributor:   *c.Distributor.DeepCopy(),
-		QueryFrontend: *c.QueryFrontend.DeepCopy(),
-		Gateway:       *c.Gateway.DeepCopy(),
+		IndexGateway:   *c.IndexGateway.DeepCopy(),
+		Ingester:       *c.Ingester.DeepCopy(),
+		Compactor:      *c.Compactor.DeepCopy(),
+		Ruler:          *c.Ruler.DeepCopy(),
+		WALStorage:     *c.WALStorage.DeepCopy(),
+		Querier:        *c.Querier.DeepCopy(),
+		Distributor:    *c.Distributor.DeepCopy(),
+		QueryFrontend:  *c.QueryFrontend.DeepCopy(),
+		QueryScheduler: *c.QueryScheduler.DeepCopy(),
+		Gateway:        *c.Gateway.DeepCopy(),
 	}
 }
 
@@ -70,6 +72,13 @@ var resourceRequirementsTable = map[lokiv1.LokiStackSizeType]ComponentResources{
 		},
 	},
 	lokiv1.SizeOneXPico: {
+		// TODO: QueryScheduler resource requests are pending load-test profiling.
+		QueryScheduler: corev1.ResourceRequirements{
+			Requests: map[corev1.ResourceName]resource.Quantity{
+				corev1.ResourceCPU:    resource.MustParse("100m"),
+				corev1.ResourceMemory: resource.MustParse("128Mi"),
+			},
+		},
 		Querier: corev1.ResourceRequirements{
 			Requests: map[corev1.ResourceName]resource.Quantity{
 				corev1.ResourceCPU:    resource.MustParse("750m"),
@@ -127,6 +136,13 @@ var resourceRequirementsTable = map[lokiv1.LokiStackSizeType]ComponentResources{
 		},
 	},
 	lokiv1.SizeOneXExtraSmall: {
+		// TODO: QueryScheduler resource requests are pending load-test profiling.
+		QueryScheduler: corev1.ResourceRequirements{
+			Requests: map[corev1.ResourceName]resource.Quantity{
+				corev1.ResourceCPU:    resource.MustParse("100m"),
+				corev1.ResourceMemory: resource.MustParse("128Mi"),
+			},
+		},
 		Querier: corev1.ResourceRequirements{
 			Requests: map[corev1.ResourceName]resource.Quantity{
 				corev1.ResourceCPU:    resource.MustParse("1.5"),
@@ -184,6 +200,13 @@ var resourceRequirementsTable = map[lokiv1.LokiStackSizeType]ComponentResources{
 		},
 	},
 	lokiv1.SizeOneXSmall: {
+		// TODO: QueryScheduler resource requests are pending load-test profiling.
+		QueryScheduler: corev1.ResourceRequirements{
+			Requests: map[corev1.ResourceName]resource.Quantity{
+				corev1.ResourceCPU:    resource.MustParse("100m"),
+				corev1.ResourceMemory: resource.MustParse("128Mi"),
+			},
+		},
 		Querier: corev1.ResourceRequirements{
 			Requests: map[corev1.ResourceName]resource.Quantity{
 				corev1.ResourceCPU:    resource.MustParse("4"),
@@ -241,6 +264,13 @@ var resourceRequirementsTable = map[lokiv1.LokiStackSizeType]ComponentResources{
 		},
 	},
 	lokiv1.SizeOneXMedium: {
+		// TODO: QueryScheduler resource requests are pending load-test profiling.
+		QueryScheduler: corev1.ResourceRequirements{
+			Requests: map[corev1.ResourceName]resource.Quantity{
+				corev1.ResourceCPU:    resource.MustParse("200m"),
+				corev1.ResourceMemory: resource.MustParse("256Mi"),
+			},
+		},
 		Querier: corev1.ResourceRequirements{
 			Requests: map[corev1.ResourceName]resource.Quantity{
 				corev1.ResourceCPU:    resource.MustParse("6"),
@@ -311,6 +341,7 @@ func ResourceRequirementsForSize(size lokiv1.LokiStackSizeType, useRequestsAsLim
 		resources.Querier.Limits = resources.Querier.Requests.DeepCopy()
 		resources.Distributor.Limits = resources.Distributor.Requests.DeepCopy()
 		resources.QueryFrontend.Limits = resources.QueryFrontend.Requests.DeepCopy()
+		resources.QueryScheduler.Limits = resources.QueryScheduler.Requests.DeepCopy()
 		resources.Gateway.Limits = resources.Gateway.Requests.DeepCopy()
 	}
 	return resources
@@ -362,6 +393,9 @@ var StackSizeTable = map[lokiv1.LokiStackSizeType]lokiv1.LokiStackSpec{
 				Replicas: 1,
 			},
 			QueryFrontend: &lokiv1.LokiComponentSpec{
+				Replicas: 1,
+			},
+			QueryScheduler: &lokiv1.LokiComponentSpec{
 				Replicas: 1,
 			},
 			Gateway: &lokiv1.LokiComponentSpec{
@@ -423,6 +457,9 @@ var StackSizeTable = map[lokiv1.LokiStackSizeType]lokiv1.LokiStackSpec{
 			QueryFrontend: &lokiv1.LokiComponentSpec{
 				Replicas: 2,
 			},
+			QueryScheduler: &lokiv1.LokiComponentSpec{
+				Replicas: 2,
+			},
 			Gateway: &lokiv1.LokiComponentSpec{
 				Replicas: 2,
 			},
@@ -480,6 +517,9 @@ var StackSizeTable = map[lokiv1.LokiStackSizeType]lokiv1.LokiStackSpec{
 				Replicas: 2,
 			},
 			QueryFrontend: &lokiv1.LokiComponentSpec{
+				Replicas: 2,
+			},
+			QueryScheduler: &lokiv1.LokiComponentSpec{
 				Replicas: 2,
 			},
 			Gateway: &lokiv1.LokiComponentSpec{
@@ -542,6 +582,9 @@ var StackSizeTable = map[lokiv1.LokiStackSizeType]lokiv1.LokiStackSpec{
 			QueryFrontend: &lokiv1.LokiComponentSpec{
 				Replicas: 2,
 			},
+			QueryScheduler: &lokiv1.LokiComponentSpec{
+				Replicas: 2,
+			},
 			Gateway: &lokiv1.LokiComponentSpec{
 				Replicas: 2,
 			},
@@ -600,6 +643,9 @@ var StackSizeTable = map[lokiv1.LokiStackSizeType]lokiv1.LokiStackSpec{
 				Replicas: 3,
 			},
 			QueryFrontend: &lokiv1.LokiComponentSpec{
+				Replicas: 2,
+			},
+			QueryScheduler: &lokiv1.LokiComponentSpec{
 				Replicas: 2,
 			},
 			Gateway: &lokiv1.LokiComponentSpec{

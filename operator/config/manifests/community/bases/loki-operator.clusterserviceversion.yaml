@@ -802,6 +802,23 @@ spec:
         path: template.queryFrontend.replicas
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:hidden
+      - description: |-
+          QueryScheduler defines the query-scheduler component spec.
+          The query-scheduler is a work-queue between the query-frontend and the queriers (V2 frontend architecture).
+        displayName: Query Scheduler pods
+        path: template.queryScheduler
+      - description: |-
+          PodAntiAffinity defines the pod anti affinity scheduling rules to schedule pods
+          of a component.
+        displayName: PodAntiAffinity
+        path: template.queryScheduler.podAntiAffinity
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podAntiAffinity
+      - description: Replicas defines the number of replica pods of the component.
+        displayName: Replicas
+        path: template.queryScheduler.replicas
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:hidden
       - description: Ruler defines the ruler component spec.
         displayName: Ruler pods
         path: template.ruler
@@ -1099,6 +1116,12 @@ spec:
           deployment.
         displayName: Gateway
         path: components.gateway
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podStatuses
+      - description: QueryScheduler is a map to the per pod status of the query-scheduler
+          deployment.
+        displayName: Query Scheduler
+        path: components.queryScheduler
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:podStatuses
       - description: IndexGateway is a map to the per pod status of the index gateway

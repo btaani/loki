@@ -126,8 +126,20 @@ frontend:
   compress_responses: true
   max_outstanding_per_tenant: 4096
   log_queries_longer_than: 5s
+  scheduler_address: {{ .QueryScheduler.FQDN }}:{{ .QueryScheduler.Port }}
+  address: {{ .FrontendWorker.FQDN }}
+{{- if .Gates.GRPCEncryption }}
+  grpc_client_config:
+    tls_enabled: true
+    tls_cert_path: {{ .TLS.Paths.GRPC.Certificate }}
+    tls_key_path: {{ .TLS.Paths.GRPC.Key }}
+    tls_ca_path: {{ .TLS.Paths.CA }}
+    tls_server_name: {{ .TLS.ServerNames.GRPC.QueryScheduler }}
+    tls_cipher_suites: {{ .TLS.CipherSuitesString }}
+    tls_min_version: {{ .TLS.MinTLSVersion }}
+{{- end }}
 frontend_worker:
-  frontend_address: {{ .FrontendWorker.FQDN }}:{{ .FrontendWorker.Port }}
+  scheduler_address: {{ .QueryScheduler.FQDN }}:{{ .QueryScheduler.Port }}
   grpc_client_config:
     max_send_msg_size: 104857600
 {{- if .Gates.GRPCEncryption }}
@@ -135,10 +147,19 @@ frontend_worker:
     tls_cert_path: {{ .TLS.Paths.GRPC.Certificate }}
     tls_key_path: {{ .TLS.Paths.GRPC.Key }}
     tls_ca_path: {{ .TLS.Paths.CA }}
-    tls_server_name: {{ .TLS.ServerNames.GRPC.QueryFrontend }}
+    # tls_insecure_skip_verify is required because this grpc_client_config is shared
+    # between two outbound connections with different cert SANs:
+    #   1. querier → query-scheduler (to pull jobs)
+    #   2. querier → query-frontend (to deliver results, dialing the pod IP embedded
+    #      in the job by the scheduler)
+    # Pod IPs have no cert SANs. Per-pod certificates would fix this properly.
+    # Server-side mTLS is still enforced (servers verify the client cert).
+    tls_insecure_skip_verify: true
     tls_cipher_suites: {{ .TLS.CipherSuitesString }}
     tls_min_version: {{ .TLS.MinTLSVersion }}
 {{- end }}
+query_scheduler:
+  max_outstanding_requests_per_tenant: 32000
 ingester:
   chunk_block_size: 262144
   chunk_encoding: snappy

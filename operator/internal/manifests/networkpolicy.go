@@ -61,7 +61,7 @@ var (
 			{
 				Key:      "app.kubernetes.io/component",
 				Operator: metav1.LabelSelectorOpIn,
-				Values:   []string{"distributor", "ingester", "query-frontend", "querier", "ruler", "index-gateway", "compactor"},
+				Values:   []string{"distributor", "ingester", "query-frontend", "query-scheduler", "querier", "ruler", "index-gateway", "compactor"},
 			},
 		},
 	}

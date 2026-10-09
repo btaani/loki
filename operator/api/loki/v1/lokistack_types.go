@@ -493,6 +493,14 @@ type LokiTemplateSpec struct {
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Ruler pods"
 	Ruler *LokiComponentSpec `json:"ruler,omitempty"`
+
+	// QueryScheduler defines the query-scheduler component spec.
+	// The query-scheduler is a work-queue between the query-frontend and the queriers (V2 frontend architecture).
+	//
+	// +optional
+	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Query Scheduler pods"
+	QueryScheduler *LokiComponentSpec `json:"queryScheduler,omitempty"`
 }
 
 // ClusterProxy is the Proxy configuration when the cluster is behind a Proxy.
@@ -1501,6 +1509,13 @@ type LokiStackComponentStatus struct {
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=status,xDescriptors="urn:alm:descriptor:com.tectonic.ui:podStatuses",displayName="Query Frontend",order=4
 	QueryFrontend PodStatusMap `json:"queryFrontend,omitempty"`
+
+	// QueryScheduler is a map to the per pod status of the query-scheduler deployment.
+	//
+	// +optional
+	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=status,xDescriptors="urn:alm:descriptor:com.tectonic.ui:podStatuses",displayName="Query Scheduler",order=5
+	QueryScheduler PodStatusMap `json:"queryScheduler,omitempty"`
 
 	// Gateway is a map to the per pod status of the lokistack gateway deployment.
 	//

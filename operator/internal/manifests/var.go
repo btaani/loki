@@ -107,6 +107,8 @@ const (
 	LabelRulerComponent string = "ruler"
 	// LabelGatewayComponent is the label value for the lokiStack-gateway component
 	LabelGatewayComponent string = "lokistack-gateway"
+	// LabelQuerySchedulerComponent is the label value for the query-scheduler component
+	LabelQuerySchedulerComponent string = "query-scheduler"
 
 	// httpTLSDir is the path that is mounted from the secret for TLS
 	httpTLSDir = "/var/run/tls/http"
@@ -256,6 +258,11 @@ func GatewayName(stackName string) string {
 	return fmt.Sprintf("%s-gateway", stackName)
 }
 
+// QuerySchedulerName is the name of the query-scheduler deployment
+func QuerySchedulerName(stackName string) string {
+	return fmt.Sprintf("%s-query-scheduler", stackName)
+}
+
 // PrometheusRuleName is the name of the loki-prometheus-rule
 func PrometheusRuleName(stackName string) string {
 	return fmt.Sprintf("%s-prometheus-rule", stackName)
@@ -387,6 +394,14 @@ func serviceNameRulerGRPC(stackName string) string {
 
 func serviceNameGatewayHTTP(stackName string) string {
 	return fmt.Sprintf("%s-gateway-http", stackName)
+}
+
+func serviceNameQuerySchedulerGRPC(stackName string) string {
+	return fmt.Sprintf("%s-query-scheduler-grpc", stackName)
+}
+
+func serviceNameQuerySchedulerHTTP(stackName string) string {
+	return fmt.Sprintf("%s-query-scheduler-http", stackName)
 }
 
 func serviceMonitorName(componentName string) string {

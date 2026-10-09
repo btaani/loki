@@ -781,6 +781,22 @@ func (in *LokiStackComponentStatus) DeepCopyInto(out *LokiStackComponentStatus) 
 			(*out)[key] = outVal
 		}
 	}
+	if in.QueryScheduler != nil {
+		in, out := &in.QueryScheduler, &out.QueryScheduler
+		*out = make(PodStatusMap, len(*in))
+		for key, val := range *in {
+			var outVal []string
+			if val == nil {
+				(*out)[key] = nil
+			} else {
+				inVal := (*in)[key]
+				in, out := &inVal, &outVal
+				*out = make([]string, len(*in))
+				copy(*out, *in)
+			}
+			(*out)[key] = outVal
+		}
+	}
 	if in.Gateway != nil {
 		in, out := &in.Gateway, &out.Gateway
 		*out = make(PodStatusMap, len(*in))
@@ -1018,6 +1034,11 @@ func (in *LokiTemplateSpec) DeepCopyInto(out *LokiTemplateSpec) {
 	}
 	if in.Ruler != nil {
 		in, out := &in.Ruler, &out.Ruler
+		*out = new(LokiComponentSpec)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.QueryScheduler != nil {
+		in, out := &in.QueryScheduler, &out.QueryScheduler
 		*out = new(LokiComponentSpec)
 		(*in).DeepCopyInto(*out)
 	}

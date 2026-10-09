@@ -18,6 +18,7 @@ func BuildServiceMonitors(opts Options) []client.Object {
 		NewQuerierServiceMonitor(opts),
 		NewCompactorServiceMonitor(opts),
 		NewQueryFrontendServiceMonitor(opts),
+		NewQuerySchedulerServiceMonitor(opts),
 		NewIndexGatewayServiceMonitor(opts),
 		NewRulerServiceMonitor(opts),
 		NewGatewayServiceMonitor(opts),
@@ -74,6 +75,17 @@ func NewQueryFrontendServiceMonitor(opts Options) *monitoringv1.ServiceMonitor {
 
 	serviceMonitorName := serviceMonitorName(QueryFrontendName(opts.Name))
 	serviceName := serviceNameQueryFrontendHTTP(opts.Name)
+	lokiEndpoint := lokiServiceMonitorEndpoint(opts.Name, lokiHTTPPortName, serviceName, opts.Namespace, opts.Gates.ServiceMonitorTLSEndpoints)
+
+	return newServiceMonitor(opts.Namespace, serviceMonitorName, l, lokiEndpoint)
+}
+
+// NewQuerySchedulerServiceMonitor creates a k8s service monitor for the query-scheduler component
+func NewQuerySchedulerServiceMonitor(opts Options) *monitoringv1.ServiceMonitor {
+	l := ComponentLabels(LabelQuerySchedulerComponent, opts.Name)
+
+	serviceMonitorName := serviceMonitorName(QuerySchedulerName(opts.Name))
+	serviceName := serviceNameQuerySchedulerHTTP(opts.Name)
 	lokiEndpoint := lokiServiceMonitorEndpoint(opts.Name, lokiHTTPPortName, serviceName, opts.Namespace, opts.Gates.ServiceMonitorTLSEndpoints)
 
 	return newServiceMonitor(opts.Namespace, serviceMonitorName, l, lokiEndpoint)

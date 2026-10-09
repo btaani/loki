@@ -21,6 +21,7 @@ type Options struct {
 	Name                  string
 	Compactor             Address
 	FrontendWorker        Address
+	QueryScheduler        Address
 	GossipRing            GossipRing
 	Querier               Address
 	IndexGateway          Address
@@ -301,11 +302,12 @@ type TLSServerNames struct {
 }
 
 type GRPCServerNames struct {
-	Compactor     string
-	IndexGateway  string
-	Ingester      string
-	QueryFrontend string
-	Ruler         string
+	Compactor      string
+	IndexGateway   string
+	Ingester       string
+	QueryFrontend  string
+	QueryScheduler string
+	Ruler          string
 }
 
 type HTTPServerNames struct {

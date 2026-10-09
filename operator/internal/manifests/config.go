@@ -142,11 +142,12 @@ func ConfigOptions(opt Options) config.Options {
 			},
 			ServerNames: config.TLSServerNames{
 				GRPC: config.GRPCServerNames{
-					Compactor:     fqdn(serviceNameCompactorGRPC(opt.Name), opt.Namespace),
-					IndexGateway:  fqdn(serviceNameIndexGatewayGRPC(opt.Name), opt.Namespace),
-					Ingester:      fqdn(serviceNameIngesterGRPC(opt.Name), opt.Namespace),
-					QueryFrontend: fqdn(serviceNameQueryFrontendGRPC(opt.Name), opt.Namespace),
-					Ruler:         fqdn(serviceNameRulerGRPC(opt.Name), opt.Namespace),
+					Compactor:      fqdn(serviceNameCompactorGRPC(opt.Name), opt.Namespace),
+					IndexGateway:   fqdn(serviceNameIndexGatewayGRPC(opt.Name), opt.Namespace),
+					Ingester:       fqdn(serviceNameIngesterGRPC(opt.Name), opt.Namespace),
+					QueryFrontend:  fqdn(serviceNameQueryFrontendGRPC(opt.Name), opt.Namespace),
+					QueryScheduler: fqdn(serviceNameQuerySchedulerGRPC(opt.Name), opt.Namespace),
+					Ruler:          fqdn(serviceNameRulerGRPC(opt.Name), opt.Namespace),
 				},
 				HTTP: config.HTTPServerNames{
 					Querier: fqdn(serviceNameQuerierHTTP(opt.Name), opt.Namespace),
@@ -161,6 +162,10 @@ func ConfigOptions(opt Options) config.Options {
 		},
 		FrontendWorker: config.Address{
 			FQDN: fqdn(NewQueryFrontendGRPCService(opt).GetName(), opt.Namespace),
+			Port: grpcPort,
+		},
+		QueryScheduler: config.Address{
+			FQDN: fqdn(serviceNameQuerySchedulerGRPC(opt.Name), opt.Namespace),
 			Port: grpcPort,
 		},
 		GossipRing: gossipRingConfig(opt.Name, opt.Namespace, opt.Stack.HashRing, opt.Stack.Replication),
